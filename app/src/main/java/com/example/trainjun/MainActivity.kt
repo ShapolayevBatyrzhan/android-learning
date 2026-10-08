@@ -1,7 +1,6 @@
 package com.example.trainjun
 
 import android.R.attr.id
-import android.R.attr.text
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -9,7 +8,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -37,7 +35,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.contentColorFor
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -46,8 +43,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ModifierLocalBeyondBoundsLayout
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -65,9 +60,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
 
-            //AppNavigation()
+            AppNavigation()
 
-            TaskScreen()
+            //TaskScreen()
             //LoveScreen()
         }
     }
@@ -75,14 +70,9 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun MovieListScreen(
-    onMovieClick: (Int) -> Unit
+    onMovieClick: (Int) -> Unit,
+    viewModel: MovieViewModel = viewModel()
 ) {
-    var searchText by rememberSaveable { mutableStateOf("") }
-
-    val filteredMovies = movies.filter { movie ->
-        movie.title.contains(searchText, ignoreCase = true)
-    }
-
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -91,21 +81,21 @@ fun MovieListScreen(
     ) {
         item {
             TextField(
-                value = searchText,
-                onValueChange = { searchText = it },
+                value = viewModel.searchText,
+                onValueChange = { viewModel.onSearchChange(text = it) },
                 label = { Text("Search") },
                 leadingIcon = { Icon(Icons.Default.Search, null) },
                 modifier = Modifier.fillMaxWidth()
             )
         }
 
-        if (filteredMovies.isEmpty()) {
+        if (viewModel.filteredMovies.isEmpty()) {
             item {
                 Text("Такого фильма нет")
             }
         }
 
-        if (searchText.isBlank()) {
+        if (viewModel.searchText.isBlank()) {
             item {
                 Text("Movies")
             }
@@ -115,7 +105,7 @@ fun MovieListScreen(
                     modifier = Modifier.height(100.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(movies, key = { it.id }) { movie ->
+                    items(viewModel.filteredMovies, key = { it.id }) { movie ->
                         Card(
                             modifier = Modifier.width(140.dp),
                             onClick = { onMovieClick(movie.id) }
@@ -140,7 +130,7 @@ fun MovieListScreen(
             }
         }
 
-        items(filteredMovies, key = { it.id }) { movie ->
+        items(viewModel.filteredMovies, key = { it.id }) { movie ->
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -169,18 +159,20 @@ fun MovieListScreen(
 @Composable
 fun DetailScreen(
     movieId: Int,
-    onBack: () -> Unit
+    onBack: () -> Unit,
+    viewModel: MovieViewModel = viewModel()
 ) {
-    val movie = movies.find { it.id == movieId }
+    val movie = viewModel.getMovieById(movieId)
 
     if (movie == null) {
+        Text("Такого фильма нет")
         return
     }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(movie.title) },
+                title = { Text(movie.title)},
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "back")
@@ -195,7 +187,7 @@ fun DetailScreen(
                 .padding(16.dp)
         ) {
             Text(movie.year.toString())
-            Text(movie.description)
+            Text(movie.description )
         }
     }
 }
