@@ -1,6 +1,5 @@
 package com.example.trainjun
 
-import android.R.attr.id
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -45,6 +44,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
@@ -74,9 +74,8 @@ fun MovieListScreen(
     viewModel: MovieViewModel = viewModel()
 ) {
     MovieListContent(
-        movies = viewModel.filteredMovies,
-        searchText = viewModel.searchText,
-        onSearchChange = { viewModel.onSearchChange(text = it) },
+        uiState = viewModel.uiState,
+        onSearchChange = viewModel::onSearchChange,
         onMovieClick = onMovieClick
     )
 }
@@ -84,8 +83,7 @@ fun MovieListScreen(
 
 @Composable
 fun MovieListContent(
-    movies: List<Movie>,
-    searchText: String,
+    uiState: MovieListUiState,
     onSearchChange: (String) -> Unit,
     onMovieClick: (Int) -> Unit
 ) {
@@ -97,7 +95,7 @@ fun MovieListContent(
     ) {
         item {
             TextField(
-                value = searchText,
+                value = uiState.searchText,
                 onValueChange = onSearchChange,
                 label = { Text("Search") },
                 leadingIcon = { Icon(Icons.Default.Search, null) },
@@ -105,13 +103,13 @@ fun MovieListContent(
             )
         }
 
-        if (movies.isEmpty()) {
+        if (uiState.movies.isEmpty()) {
             item {
                 Text("Такого фильма нет")
             }
         }
 
-        if (searchText.isBlank()) {
+        if (uiState.searchText.isBlank()) {
             item {
                 Text("Movies")
             }
@@ -121,7 +119,7 @@ fun MovieListContent(
                     modifier = Modifier.height(100.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(movies, key = { it.id }) { movie ->
+                    items(uiState.movies, key = { it.id }) { movie ->
                         Card(
                             modifier = Modifier.width(140.dp),
                             onClick = { onMovieClick(movie.id) }
@@ -146,7 +144,7 @@ fun MovieListContent(
             }
         }
 
-        items(movies, key = { it.id }) { movie ->
+        items(uiState.movies, key = { it.id }) { movie ->
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -169,6 +167,33 @@ fun MovieListContent(
     }
 }
 
+@Preview(showBackground = true)
+@Composable
+fun MovieListContentPreview() {
+    MovieListContent(
+        uiState = MovieListUiState(
+            movies = listOf(
+                Movie(id = 1, title = "Начало", description = "Сны", year = 2010),
+                Movie(id = 2, title = "Матрица", description = "Симуляция", year = 1999)
+            )
+        ),
+        onSearchChange = {},
+        onMovieClick = {}
+    )
+}
+
+@Preview(showBackground = true, name = "Пустой поиск")
+@Composable
+fun MovieListEmptyPreview() {
+    MovieListContent(
+        uiState = MovieListUiState(
+            movies = emptyList(), searchText = "www"
+        ),
+        onSearchChange = {},
+        onMovieClick = {}
+    )
+}
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DetailScreen(
@@ -186,7 +211,7 @@ fun DetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(movie.title)},
+                title = { Text(movie.title) },
                 navigationIcon = {
                     IconButton(onClick = onBack) {
                         Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "back")
@@ -201,7 +226,7 @@ fun DetailScreen(
                 .padding(16.dp)
         ) {
             Text(movie.year.toString())
-            Text(movie.description )
+            Text(movie.description)
         }
     }
 }
@@ -300,7 +325,7 @@ fun TaskScreen(
             inputText = ""
         },
         onToggle = { id -> viewmodel.toggleTask(id) },
-        onDelete = {
+        onDelete = { id ->
             viewmodel.deleteTask(id)
         }
     )

@@ -6,10 +6,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 
 class MovieViewModel : ViewModel() {
-    var searchText by mutableStateOf("")
-        private set
 
-   private  val allMovies = listOf(
+    private val allMovies = listOf(
         Movie(1, "harry", "dazcx", 2010),
         Movie(2, "start", "dazcx", 2010),
         Movie(3, "end", "dazcx", 2010),
@@ -17,17 +15,23 @@ class MovieViewModel : ViewModel() {
         Movie(5, "movie1", "dazcx", 2010),
     )
 
-    val filteredMovies: List<Movie>
-        get() = allMovies.filter {movie ->
-            movie.title.contains(searchText, ignoreCase = true)
-        }
+    var uiState by mutableStateOf(
+        MovieListUiState(
+            movies = allMovies,
+        )
+    )
+        private set
+
 
     fun onSearchChange(text: String) {
-        searchText = text
+        uiState = uiState.copy(
+            searchText = text,
+            movies = allMovies.filter { it.title.contains(text, ignoreCase = true) }
+        )
     }
 
     fun getMovieById(id: Int): Movie? {
-        return allMovies.find { it.id == id}
+        return allMovies.find { it.id == id }
     }
 }
 
