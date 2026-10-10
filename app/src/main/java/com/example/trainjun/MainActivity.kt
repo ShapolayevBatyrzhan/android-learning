@@ -73,6 +73,22 @@ fun MovieListScreen(
     onMovieClick: (Int) -> Unit,
     viewModel: MovieViewModel = viewModel()
 ) {
+    MovieListContent(
+        movies = viewModel.filteredMovies,
+        searchText = viewModel.searchText,
+        onSearchChange = { viewModel.onSearchChange(text = it) },
+        onMovieClick = onMovieClick
+    )
+}
+
+
+@Composable
+fun MovieListContent(
+    movies: List<Movie>,
+    searchText: String,
+    onSearchChange: (String) -> Unit,
+    onMovieClick: (Int) -> Unit
+) {
     LazyColumn(
         modifier = Modifier
             .fillMaxSize()
@@ -81,21 +97,21 @@ fun MovieListScreen(
     ) {
         item {
             TextField(
-                value = viewModel.searchText,
-                onValueChange = { viewModel.onSearchChange(text = it) },
+                value = searchText,
+                onValueChange = onSearchChange,
                 label = { Text("Search") },
                 leadingIcon = { Icon(Icons.Default.Search, null) },
                 modifier = Modifier.fillMaxWidth()
             )
         }
 
-        if (viewModel.filteredMovies.isEmpty()) {
+        if (movies.isEmpty()) {
             item {
                 Text("Такого фильма нет")
             }
         }
 
-        if (viewModel.searchText.isBlank()) {
+        if (searchText.isBlank()) {
             item {
                 Text("Movies")
             }
@@ -105,7 +121,7 @@ fun MovieListScreen(
                     modifier = Modifier.height(100.dp),
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    items(viewModel.filteredMovies, key = { it.id }) { movie ->
+                    items(movies, key = { it.id }) { movie ->
                         Card(
                             modifier = Modifier.width(140.dp),
                             onClick = { onMovieClick(movie.id) }
@@ -130,7 +146,7 @@ fun MovieListScreen(
             }
         }
 
-        items(viewModel.filteredMovies, key = { it.id }) { movie ->
+        items(movies, key = { it.id }) { movie ->
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -152,8 +168,6 @@ fun MovieListScreen(
         }
     }
 }
-
-//MovieCard == todo
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
