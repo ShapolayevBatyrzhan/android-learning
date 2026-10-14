@@ -1,4 +1,4 @@
-package com.example.trainjun
+package com.example.trainjun.Task
 
 data class Task(
     val id: Int,

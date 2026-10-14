@@ -1,4 +1,4 @@
-package com.example.trainjun
+package com.example.trainjun.Movie
 
 data class Movie(
     val id: Int,

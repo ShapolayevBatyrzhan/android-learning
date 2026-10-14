@@ -1,4 +1,4 @@
-package com.example.trainjun
+package com.example.trainjun.Movie
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf

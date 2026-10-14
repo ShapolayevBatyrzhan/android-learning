@@ -53,6 +53,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import com.example.trainjun.Movie.Movie
+import com.example.trainjun.Movie.MovieListUiState
+import com.example.trainjun.Movie.MovieViewModel
+import com.example.trainjun.Task.Task
+import com.example.trainjun.Task.TaskEvent
+import com.example.trainjun.Task.TaskViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -313,20 +319,32 @@ fun FavoritesScreen() {
 fun TaskScreen(
     viewmodel: TaskViewModel = viewModel()
 ) {
-    var inputText by remember { mutableStateOf("") }
+    val uiState = viewmodel.uiState
 
     TaskMain(
-        tasks = viewmodel.tasks,
-        text = inputText,
+        tasks = uiState.tasks,
+        text = uiState.inputText,
 
-        onTextChange = { inputText = it },
-        onAddTask = {
-            viewmodel.addTask(inputText)
-            inputText = ""
+        onTextChange = {
+            viewmodel.onEvent(
+                TaskEvent.TextChanged(it)
+            )
         },
-        onToggle = { id -> viewmodel.toggleTask(id) },
+        onAddTask = {
+            viewmodel.onEvent(
+                TaskEvent.AddTask
+            )
+
+        },
+        onToggle = { id ->
+            viewmodel.onEvent(
+                TaskEvent.ToggleTask(id)
+            )
+        },
         onDelete = { id ->
-            viewmodel.deleteTask(id)
+            viewmodel.onEvent(
+                TaskEvent.DeleteTask(id)
+            )
         }
     )
 }
