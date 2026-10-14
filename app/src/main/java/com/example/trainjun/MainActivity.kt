@@ -58,6 +58,7 @@ import com.example.trainjun.Movie.MovieListUiState
 import com.example.trainjun.Movie.MovieViewModel
 import com.example.trainjun.Task.Task
 import com.example.trainjun.Task.TaskEvent
+import com.example.trainjun.Task.TaskUiState
 import com.example.trainjun.Task.TaskViewModel
 
 class MainActivity : ComponentActivity() {
@@ -319,44 +320,16 @@ fun FavoritesScreen() {
 fun TaskScreen(
     viewmodel: TaskViewModel = viewModel()
 ) {
-    val uiState = viewmodel.uiState
-
     TaskMain(
-        tasks = uiState.tasks,
-        text = uiState.inputText,
-
-        onTextChange = {
-            viewmodel.onEvent(
-                TaskEvent.TextChanged(it)
-            )
-        },
-        onAddTask = {
-            viewmodel.onEvent(
-                TaskEvent.AddTask
-            )
-
-        },
-        onToggle = { id ->
-            viewmodel.onEvent(
-                TaskEvent.ToggleTask(id)
-            )
-        },
-        onDelete = { id ->
-            viewmodel.onEvent(
-                TaskEvent.DeleteTask(id)
-            )
-        }
+        uiState = viewmodel.uiState,
+        onEvent = viewmodel::onEvent
     )
 }
 
 @Composable
 fun TaskMain(
-    tasks: List<Task>,
-    text: String,
-    onTextChange: (String) -> Unit,
-    onAddTask: () -> Unit,
-    onToggle: (Int) -> Unit,
-    onDelete: (Int) -> Unit
+    uiState: TaskUiState,
+    onEvent: (TaskEvent) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -365,13 +338,13 @@ fun TaskMain(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         TextField(
-            value = text,
-            onValueChange = onTextChange,
+            value = uiState.inputText,
+            onValueChange = { onEvent(TaskEvent.TextChanged(it)) },
             label = { Text("Введите задачу") },
             placeholder = { Text("Type here...") }
         )
         Button(
-            onClick = onAddTask
+            onClick = { onEvent(TaskEvent.AddTask) }
         ) {
             Text("Добавить")
         }
@@ -382,11 +355,11 @@ fun TaskMain(
                 .weight(1f)
         ) {
             items(
-                tasks, key = { it.id }) { task ->
+                uiState.tasks, key = { it.id }) { task ->
                 TaskItem(
                     task = task,
-                    onToggle = onToggle,
-                    onDelete = onDelete
+                    onToggle = { id -> onEvent(TaskEvent.ToggleTask(id)) },
+                    onDelete = { id -> onEvent(TaskEvent.DeleteTask(id)) }
                 )
             }
         }

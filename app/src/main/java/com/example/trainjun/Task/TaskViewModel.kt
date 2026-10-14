@@ -15,9 +15,7 @@ class TaskViewModel : ViewModel() {
                 uiState = uiState.copy(inputText = event.text)
             }
 
-            is TaskEvent.AddTask -> {
-                addTask(uiState.inputText)
-            }
+            is TaskEvent.AddTask -> addTask()
 
             is TaskEvent.DeleteTask -> {
                 deleteTask(event.id)
@@ -29,7 +27,9 @@ class TaskViewModel : ViewModel() {
         }
     }
 
-    private fun addTask(title: String) {
+    private fun addTask() {
+        val title = uiState.inputText
+
         if (title.isBlank()) return
         val newTask = Task(
             id = (uiState.tasks.maxOfOrNull { it.id } ?: 0) + 1,
