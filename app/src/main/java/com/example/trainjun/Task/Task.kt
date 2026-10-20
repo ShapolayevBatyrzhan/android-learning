@@ -1,6 +1,6 @@
 package com.example.trainjun.Task
 
-data class task(
+data class Task(
     val id: Int,
     val title: String,
     val isDone: Boolean

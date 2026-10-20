@@ -36,9 +36,6 @@ import androidx.compose.material3.TextField
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextDecoration
@@ -55,7 +52,7 @@ import androidx.navigation.navArgument
 import com.example.trainjun.Movie.Movie
 import com.example.trainjun.Movie.MovieListUiState
 import com.example.trainjun.Movie.MovieViewModel
-import com.example.trainjun.Task.task
+import com.example.trainjun.Task.Task
 import com.example.trainjun.Task.TaskEvent
 import com.example.trainjun.Task.TaskUiState
 import com.example.trainjun.Task.TaskViewModel
@@ -330,7 +327,7 @@ fun TaskScreen(
 fun TaskMainPreview() {
     TaskMain(
         uiState = TaskUiState(
-            tasks = emptyList(),
+            tasks = listOf(Task(1, "task1", false)),
         ),
         onEvent = {}
     )
@@ -385,7 +382,7 @@ fun TaskMain(
 
 @Composable
 fun TaskItem(
-    task: task,
+    task: Task,
     onToggle: (Int) -> Unit,
     onDelete: (Int) -> Unit
 ) {

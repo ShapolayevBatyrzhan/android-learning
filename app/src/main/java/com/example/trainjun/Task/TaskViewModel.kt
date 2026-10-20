@@ -31,7 +31,7 @@ class TaskViewModel : ViewModel() {
         val title = uiState.inputText
 
         if (title.isBlank()) return
-        val newTask = task(
+        val newTask = Task(
             id = (uiState.tasks.maxOfOrNull { it.id } ?: 0) + 1,
             title = title,
             isDone = false
