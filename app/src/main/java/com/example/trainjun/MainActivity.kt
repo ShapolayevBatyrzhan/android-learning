@@ -362,8 +362,15 @@ fun TaskMain(
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
-                .weight(1f)
+                .weight(1f),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            if (uiState.tasks.isEmpty()) {
+                item {
+                    Text("Задач пока нет")
+                }
+            }
+
             items(
                 uiState.tasks, key = { it.id }) { task ->
                 TaskItem(
