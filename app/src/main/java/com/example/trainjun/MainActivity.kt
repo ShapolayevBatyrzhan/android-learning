@@ -37,7 +37,6 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -56,7 +55,7 @@ import androidx.navigation.navArgument
 import com.example.trainjun.Movie.Movie
 import com.example.trainjun.Movie.MovieListUiState
 import com.example.trainjun.Movie.MovieViewModel
-import com.example.trainjun.Task.Task
+import com.example.trainjun.Task.task
 import com.example.trainjun.Task.TaskEvent
 import com.example.trainjun.Task.TaskUiState
 import com.example.trainjun.Task.TaskViewModel
@@ -326,6 +325,17 @@ fun TaskScreen(
     )
 }
 
+@Preview(showBackground = true, name = "Задачи")
+@Composable
+fun TaskMainPreview() {
+    TaskMain(
+        uiState = TaskUiState(
+            tasks = emptyList(),
+        ),
+        onEvent = {}
+    )
+}
+
 @Composable
 fun TaskMain(
     uiState: TaskUiState,
@@ -368,7 +378,7 @@ fun TaskMain(
 
 @Composable
 fun TaskItem(
-    task: Task,
+    task: task,
     onToggle: (Int) -> Unit,
     onDelete: (Int) -> Unit
 ) {
@@ -407,271 +417,3 @@ fun TaskItem(
         }
     }
 }
-
-@Composable
-fun auto() {
-    Card(
-        modifier = Modifier
-            .padding(25.dp)
-            .fillMaxWidth()
-    ) {
-        Column(
-            modifier = Modifier
-                .padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-
-            Text("")
-
-            Button(
-                onClick = {}
-            ) {
-                Text("Купить")
-            }
-
-        }
-    }
-}
-
-@Composable
-fun RegScreen() {
-    var name by rememberSaveable { mutableStateOf("") }
-    var email by rememberSaveable { mutableStateOf("") }
-    var password by rememberSaveable { mutableStateOf("") }
-
-    Reg(
-        name = name,
-        email = email,
-        password = password,
-
-        onNameChange = { name = it },
-        onEmailChange = { email = it },
-        onPasswordChange = { password = it }
-    )
-}
-
-@Composable
-fun Reg(
-    name: String,
-    email: String,
-    password: String,
-    onNameChange: (String) -> Unit,
-    onEmailChange: (String) -> Unit,
-    onPasswordChange: (String) -> Unit
-) {
-    var nameError by rememberSaveable { mutableStateOf(false) }
-    var emailError by rememberSaveable { mutableStateOf(false) }
-    var passwordError by rememberSaveable { mutableStateOf(false) }
-
-    Column(
-        modifier = Modifier
-            .fillMaxSize(),
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text("Регистрация")
-
-        Text("Имя")
-        TextField(
-            value = name,
-            onValueChange = onNameChange,
-            label = { Text("Имя") },
-            isError = nameError
-        )
-
-        Text("Email")
-
-        TextField(
-            value = email,
-            onValueChange = onEmailChange,
-            label = { Text("Email") },
-            isError = emailError
-        )
-
-        Text("Пароль")
-        TextField(
-            value = password,
-            onValueChange = onPasswordChange,
-            label = { Text("Пароль") },
-            isError = passwordError
-        )
-
-        Button(
-            onClick = {
-                nameError = name.isBlank()
-
-                emailError = !email.contains("@")
-
-                passwordError = password.length < 6
-            }
-        ) {
-            Text("Зарегистрироваться")
-        }
-    }
-}
-
-
-//@OptIn(ExperimentalMaterial3Api::class)
-//@Preview(showBackground = true)
-//@Composable
-//fun Practice(){
-//
-//    var liked by remember{mutableStateOf(false)}
-//
-//    Scaffold (
-//        topBar = {
-//            TopAppBar(
-//                title = {
-//                    Text("My profile")
-//                },
-//                actions ={
-//                    IconButton(
-//                        onClick = {
-//                            liked = !liked
-//                        }
-//                    ){
-//                        Icon(
-//                            imageVector = if(liked){
-//                                Icons.Default.Favorite
-//                            }else{
-//                                Icons.Default.HeartBroken
-//                            },
-//                            contentDescription = "like"
-//                        )
-//                    }
-//                }
-//            )
-//        }
-//    ) { innerPadding ->
-//        Column(
-//            modifier = Modifier.padding(innerPadding)
-//        ) {
-//            Card(
-//                modifier = Modifier
-//                    .fillMaxWidth()
-//                    .padding(16.dp),
-//
-//
-//                ){
-//                Column(
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .padding(24.dp) ,
-//                    horizontalAlignment = Alignment.CenterHorizontally
-//                ){
-//                    Image(
-//                        painter = painterResource(R.drawable.daniel),
-//                        contentDescription = "Photo",
-//                        modifier = Modifier.size(120.dp)
-//                    )
-//
-//                    Spacer(modifier = Modifier.height(12.dp))
-//
-//                    Text(
-//                        "Daniel",
-//                        style = MaterialTheme.typography.headlineSmall
-//                    )
-//
-//                    Spacer(modifier = Modifier.height(4.dp))
-//
-//                    Surface(
-//                        color = MaterialTheme.colorScheme.surfaceVariant,
-//                        shape = MaterialTheme.shapes.large
-//                    ){
-//                        Text(
-//                            "Android Developer"
-//                        )
-//                    }
-//
-////            Text(
-////                "Android Developer",
-////                color = MaterialTheme.colorScheme.primary,
-////                style = MaterialTheme.typography.bodyLarge
-////            )
-//
-//                    Spacer(modifier = Modifier.height(8.dp))
-//
-//                    Row(
-//                        modifier = Modifier.fillMaxWidth(),
-//
-//                        ) {
-//                        Icon(
-//                            Icons.Default.Email,
-//                            contentDescription = "email",
-//                            tint = MaterialTheme.colorScheme.secondary
-//                        )
-//                        Text(
-//                            "shapolayev.b09@gmail.com",
-//                            color = MaterialTheme.colorScheme.onSurface,
-//                            style = MaterialTheme.typography.titleMedium
-//                        )
-//                    }
-//
-//                    Spacer(modifier = Modifier.height(8.dp))
-//
-//                    Row(
-//                        modifier = Modifier.fillMaxWidth()
-//                    ){
-//                        Icon(
-//                            Icons.Default.Phone,
-//                            contentDescription = "phone",
-//                            tint = MaterialTheme.colorScheme.primary
-//                        )
-//                        Text(
-//                            "87028641071",
-//                            style = MaterialTheme.typography.titleMedium
-//                        )
-//                    }
-//
-//                    Spacer(modifier = Modifier.height(16.dp))
-//
-//                    Button(
-//                        onClick = {},
-//                        colors = ButtonDefaults.buttonColors(
-//                            containerColor = MaterialTheme.colorScheme.secondary,
-//                            contentColor = MaterialTheme.colorScheme.onSecondary
-//                        )
-//                    ){
-//                        Text("Write")
-//                    }
-//                }
-//            }
-//        }
-//    }
-//}
-//
-//
-//@Composable
-//fun UserPhoto(){
-//    Card(
-//        modifier = Modifier
-//            .fillMaxWidth()
-//            .padding(10.dp),
-//        shape = RoundedCornerShape(15.dp),
-//    ){
-//        Box(){
-//        Row (
-//            modifier = Modifier.fillMaxWidth(),
-//            verticalAlignment = Alignment.CenterVertically
-//        ){
-//            Image(
-//                painter = painterResource(R.drawable.daniel),
-//                contentDescription = "photo",
-//                contentScale = ContentScale.Crop,
-//                modifier = Modifier
-//                    .padding(5.dp)
-//                    .size(64.dp)
-//                    .clip(CircleShape)
-//            )
-//            Column(
-//                verticalArrangement = Arrangement.Center,
-//                modifier = Modifier.padding(start = 10.dp)
-//            ) {
-//                Text("Name")
-//                Text("Name")
-//            }
-//        }
-//    }
-//    }
-//}
-
