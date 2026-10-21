@@ -5,6 +5,7 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,6 +25,7 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -90,80 +92,95 @@ fun MovieListContent(
     onSearchChange: (String) -> Unit,
     onMovieClick: (Int) -> Unit
 ) {
-    LazyColumn(
+    Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .padding(16.dp)
     ) {
-        item {
-            TextField(
-                value = uiState.searchText,
-                onValueChange = onSearchChange,
-                label = { Text("Search") },
-                leadingIcon = { Icon(Icons.Default.Search, null) },
-                modifier = Modifier.fillMaxWidth()
-            )
-        }
+        TextField(
+            value = uiState.searchText,
+            onValueChange = onSearchChange,
+            label = { Text("Search") },
+            leadingIcon = { Icon(Icons.Default.Search, null) },
+            modifier = Modifier.fillMaxWidth()
+        )
 
-        if (uiState.movies.isEmpty()) {
-            item {
-                Text("Такого фильма нет")
+        if (uiState.isLoading) {
+            Box(
+                modifier = Modifier
+                    .weight(1f)
+                    .fillMaxWidth(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
             }
-        }
+        } else {
+            LazyColumn(
+                modifier = Modifier
+                    .weight(1f),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
 
-        if (uiState.searchText.isBlank()) {
-            item {
-                Text("Movies")
-            }
+                if (uiState.movies.isEmpty()) {
+                    item {
+                        Text("Такого фильма нет")
+                    }
+                }
 
-            item {
-                LazyRow(
-                    modifier = Modifier.height(100.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-                    items(uiState.movies, key = { it.id }) { movie ->
-                        Card(
-                            modifier = Modifier.width(140.dp),
-                            onClick = { onMovieClick(movie.id) }
+                if (uiState.searchText.isBlank()) {
+                    item {
+                        Text("Movies")
+                    }
+
+                    item {
+                        LazyRow(
+                            modifier = Modifier.height(100.dp),
+                            horizontalArrangement = Arrangement.spacedBy(8.dp)
                         ) {
+                            items(uiState.movies, key = { it.id }) { movie ->
+                                Card(
+                                    modifier = Modifier.width(140.dp),
+                                    onClick = { onMovieClick(movie.id) }
+                                ) {
+                                    Text(
+                                        text = movie.title,
+                                        style = MaterialTheme.typography.titleSmall,
+                                        maxLines = 2,
+                                        overflow = TextOverflow.Ellipsis,
+                                        modifier = Modifier.padding(12.dp)
+                                    )
+                                }
+                            }
+                        }
+                    }
+
+                    item {
+                        Text(
+                            text = "Все фильмы",
+                            style = MaterialTheme.typography.titleLarge
+                        )
+                    }
+                }
+
+                items(uiState.movies, key = { it.id }) { movie ->
+                    Card(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp),
+                        onClick = { onMovieClick(movie.id) }
+                    ) {
+                        Column(modifier = Modifier.padding(16.dp)) {
                             Text(
                                 text = movie.title,
-                                style = MaterialTheme.typography.titleSmall,
-                                maxLines = 2,
-                                overflow = TextOverflow.Ellipsis,
-                                modifier = Modifier.padding(12.dp)
+                                style = MaterialTheme.typography.titleMedium
+                            )
+
+                            Text(
+                                text = movie.year.toString(),
+                                style = MaterialTheme.typography.bodyMedium
                             )
                         }
                     }
-                }
-            }
-
-            item {
-                Text(
-                    text = "Все фильмы",
-                    style = MaterialTheme.typography.titleLarge
-                )
-            }
-        }
-
-        items(uiState.movies, key = { it.id }) { movie ->
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                onClick = { onMovieClick(movie.id) }
-            ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    Text(
-                        text = movie.title,
-                        style = MaterialTheme.typography.titleMedium
-                    )
-
-                    Text(
-                        text = movie.year.toString(),
-                        style = MaterialTheme.typography.bodyMedium
-                    )
                 }
             }
         }

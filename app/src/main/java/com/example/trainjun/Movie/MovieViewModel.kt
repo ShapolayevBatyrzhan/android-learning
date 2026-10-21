@@ -4,34 +4,62 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 class MovieViewModel : ViewModel() {
 
-    private val allMovies = listOf(
-        Movie(1, "harry", "dazcx", 2010),
-        Movie(2, "start", "dazcx", 2010),
-        Movie(3, "end", "dazcx", 2010),
-        Movie(4, "movie1", "dazcx", 2010),
-        Movie(5, "movie1", "dazcx", 2010),
-    )
+    private var allMovies = emptyList<Movie>()
+
 
     var uiState by mutableStateOf(
         MovieListUiState(
-            movies = allMovies,
+            isLoading = true,
         )
     )
         private set
 
+    init {
+        loadMovies()
+    }
 
     fun onSearchChange(text: String) {
         uiState = uiState.copy(
             searchText = text,
-            movies = allMovies.filter { it.title.contains(text, ignoreCase = true) }
+            movies = filterMovies(text)
         )
+    }
+
+    private fun filterMovies(text: String): List<Movie> {
+        return allMovies.filter { it.title.contains(text, ignoreCase = true) }
     }
 
     fun getMovieById(id: Int): Movie? {
         return allMovies.find { it.id == id }
+    }
+
+    private fun loadMovies() {
+        viewModelScope.launch {
+            uiState = uiState.copy(
+                isLoading = true
+            )
+
+            val movies = fetchMovies()
+            allMovies = movies
+            uiState = uiState.copy(isLoading = false, movies = filterMovies(uiState.searchText))
+        }
+    }
+
+
+    private suspend fun fetchMovies(): List<Movie> {
+        delay(2000.milliseconds)
+        return listOf(
+            Movie(id = 1, title = "Начало", description = "Сны", year = 2010),
+            Movie(id = 2, title = "Начало2", description = "Сны2", year = 2010),
+            Movie(id = 3, title = "Начало3", description = "Сны3", year = 2010),
+        )
     }
 }
 
