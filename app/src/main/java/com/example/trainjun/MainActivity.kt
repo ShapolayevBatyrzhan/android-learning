@@ -223,6 +223,13 @@ fun DetailScreen(
 ) {
     val movie = viewModel.getMovieById(movieId)
 
+    if (viewModel.uiState.isLoading) {
+        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
+        }
+        return
+    }
+
     if (movie == null) {
         Text("Такого фильма нет")
         return
