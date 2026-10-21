@@ -81,7 +81,8 @@ fun MovieListScreen(
     MovieListContent(
         uiState = viewModel.uiState,
         onSearchChange = viewModel::onSearchChange,
-        onMovieClick = onMovieClick
+        onMovieClick = onMovieClick,
+        onRefreshClick = viewModel::onRefreshClick
     )
 }
 
@@ -89,7 +90,8 @@ fun MovieListScreen(
 fun MovieListContent(
     uiState: MovieListUiState,
     onSearchChange: (String) -> Unit,
-    onMovieClick: (Int) -> Unit
+    onMovieClick: (Int) -> Unit,
+    onRefreshClick: () -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -103,7 +105,7 @@ fun MovieListContent(
             leadingIcon = { Icon(Icons.Default.Search, null) },
             trailingIcon = {
                 IconButton(
-                    onClick = {  }
+                    onClick = onRefreshClick
                 ) {
                     Icon(Icons.Default.Refresh, contentDescription = "Refresh")
                 }
@@ -204,7 +206,8 @@ fun MovieListContentPreview() {
             )
         ),
         onSearchChange = {},
-        onMovieClick = {}
+        onMovieClick = {},
+        onRefreshClick = {}
     )
 }
 
@@ -216,7 +219,8 @@ fun MovieListEmptyPreview() {
             movies = emptyList(), searchText = "www"
         ),
         onSearchChange = {},
-        onMovieClick = {}
+        onMovieClick = {},
+        onRefreshClick = {}
     )
 }
 

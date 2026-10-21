@@ -8,11 +8,14 @@ import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
+import android.util.Log
+import kotlinx.coroutines.Job
+
 
 class MovieViewModel : ViewModel() {
 
     private var allMovies = emptyList<Movie>()
-
+    private var loadJob: Job? = null
 
     var uiState by mutableStateOf(
         MovieListUiState(
@@ -32,6 +35,10 @@ class MovieViewModel : ViewModel() {
         )
     }
 
+    fun onRefreshClick() {
+        loadMovies()
+    }
+
     private fun filterMovies(text: String): List<Movie> {
         return allMovies.filter { it.title.contains(text, ignoreCase = true) }
     }
@@ -41,7 +48,9 @@ class MovieViewModel : ViewModel() {
     }
 
     private fun loadMovies() {
-        viewModelScope.launch {
+        loadJob?.cancel()
+
+        loadJob = viewModelScope.launch {
             uiState = uiState.copy(
                 isLoading = true
             )
@@ -54,16 +63,14 @@ class MovieViewModel : ViewModel() {
 
 
     private suspend fun fetchMovies(): List<Movie> {
+        Log.d("MovieVM", "Loading started")
         delay(2000.milliseconds)
+        Log.d("MovieVM", "ended")
         return listOf(
             Movie(id = 1, title = "Начало", description = "Сны", year = 2010),
             Movie(id = 2, title = "Начало2", description = "Сны2", year = 2010),
             Movie(id = 3, title = "Начало3", description = "Сны3", year = 2010),
         ).shuffled()
-    }
-
-    private fun refreshMovies() {
-
     }
 }
 
