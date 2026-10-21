@@ -21,6 +21,7 @@ import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -64,7 +65,6 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-
             AppNavigation()
 
             //TaskScreen()
@@ -85,7 +85,6 @@ fun MovieListScreen(
     )
 }
 
-
 @Composable
 fun MovieListContent(
     uiState: MovieListUiState,
@@ -102,6 +101,13 @@ fun MovieListContent(
             onValueChange = onSearchChange,
             label = { Text("Search") },
             leadingIcon = { Icon(Icons.Default.Search, null) },
+            trailingIcon = {
+                IconButton(
+                    onClick = {  }
+                ) {
+                    Icon(Icons.Default.Refresh, contentDescription = "Refresh")
+                }
+            },
             modifier = Modifier.fillMaxWidth()
         )
 
@@ -370,14 +376,21 @@ fun TaskMain(
     ) {
         TextField(
             value = uiState.inputText,
-            onValueChange = { onEvent(TaskEvent.TextChanged(it)) },
+            onValueChange = {text -> onEvent(TaskEvent.TextChanged(text)) },
             label = { Text("Введите задачу") },
             placeholder = { Text("Type here...") }
         )
         Button(
-            onClick = { onEvent(TaskEvent.AddTask) }
+            onClick = { onEvent(TaskEvent.AddTask) },
+            enabled = !uiState.isAdding
         ) {
-            Text("Добавить")
+            Text(
+                text = if (uiState.isAdding) {
+                    "Создание..."
+                } else {
+                    "Добавить"
+                }
+            )
         }
 
         LazyColumn(

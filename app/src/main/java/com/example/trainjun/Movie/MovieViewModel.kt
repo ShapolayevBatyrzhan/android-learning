@@ -59,7 +59,11 @@ class MovieViewModel : ViewModel() {
             Movie(id = 1, title = "Начало", description = "Сны", year = 2010),
             Movie(id = 2, title = "Начало2", description = "Сны2", year = 2010),
             Movie(id = 3, title = "Начало3", description = "Сны3", year = 2010),
-        )
+        ).shuffled()
+    }
+
+    private fun refreshMovies() {
+
     }
 }
 
