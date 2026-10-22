@@ -45,6 +45,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -52,6 +53,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
+import androidx.room.util.TableInfo
 import com.example.trainjun.Movie.Movie
 import com.example.trainjun.Movie.MovieListUiState
 import com.example.trainjun.Movie.MovieViewModel
@@ -59,16 +61,78 @@ import com.example.trainjun.Task.Task
 import com.example.trainjun.Task.TaskEvent
 import com.example.trainjun.Task.TaskUiState
 import com.example.trainjun.Task.TaskViewModel
+import com.example.trainjun.timer.TimerEvent
+import com.example.trainjun.timer.TimerUiState
+import com.example.trainjun.timer.TimerViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            AppNavigation()
-
+            //AppNavigation()
+            TimerScreen()
             //TaskScreen()
             //LoveScreen()
+        }
+    }
+}
+
+
+@Composable
+fun TimerScreen(
+    viewModel: TimerViewModel = viewModel(),
+) {
+    TimerContent(
+        uiState = viewModel.uiState,
+        onEvent = viewModel::onEvent
+    )
+}
+
+@Composable
+fun TimerContent(
+    uiState: TimerUiState,
+    onEvent: (TimerEvent) -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .padding(16.dp)
+            .fillMaxSize(),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text("Осталось секунд: ${uiState.seconds}", style = MaterialTheme.typography.displayMedium)
+
+        Row(
+            modifier = Modifier.padding(10.dp),
+            horizontalArrangement = Arrangement.spacedBy(5.dp)
+        ) {
+            Button(
+                onClick = { onEvent(TimerEvent.StartTimer) },
+                enabled = !uiState.isRunning
+            ) {
+                Text(
+                    text = when {
+                        uiState.isRunning -> "Running..."
+                        uiState.isPaused -> "Resume"
+                        else -> "Start"
+                    }
+                )
+            }
+
+            Button(
+                onClick = { onEvent(TimerEvent.PauseTimer) },
+                enabled = uiState.isRunning,
+            )
+            {
+                Text("Pause")
+            }
+
+            Button(
+                onClick = { onEvent(TimerEvent.ResetTimer) }
+            ) {
+                Text("Reset")
+            }
         }
     }
 }
@@ -380,7 +444,7 @@ fun TaskMain(
     ) {
         TextField(
             value = uiState.inputText,
-            onValueChange = {text -> onEvent(TaskEvent.TextChanged(text)) },
+            onValueChange = { text -> onEvent(TaskEvent.TextChanged(text)) },
             label = { Text("Введите задачу") },
             placeholder = { Text("Type here...") }
         )
