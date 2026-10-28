@@ -66,11 +66,9 @@ class MovieViewModel : ViewModel() {
         Log.d("MovieVM", "Loading started")
         delay(2000.milliseconds)
         Log.d("MovieVM", "ended")
-        return listOf(
-            Movie(id = 1, title = "Начало", description = "Сны", year = 2010),
-            Movie(id = 2, title = "Начало2", description = "Сны2", year = 2010),
-            Movie(id = 3, title = "Начало3", description = "Сны3", year = 2010),
-        ).shuffled()
+        return (1..20).map { number ->
+            Movie(id = number, title = "Фильм $number", description = "Описание $number", year = 2000 + number)
+        }.shuffled()
     }
 }
 
