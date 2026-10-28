@@ -43,6 +43,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -70,6 +71,7 @@ import com.example.trainjun.Task.TaskViewModel
 import com.example.trainjun.timer.TimerEvent
 import com.example.trainjun.timer.TimerUiState
 import com.example.trainjun.timer.TimerViewModel
+import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -164,6 +166,7 @@ fun MovieListContent(
     onRefreshClick: () -> Unit
 ) {
     val listState = rememberLazyListState()
+    val scope = rememberCoroutineScope()
     var lastSearchText by rememberSaveable { mutableStateOf(uiState.searchText) }
 
     LaunchedEffect(uiState.searchText) {
@@ -269,6 +272,14 @@ fun MovieListContent(
                                 style = MaterialTheme.typography.bodyMedium
                             )
                         }
+                    }
+                }
+
+                item {
+                    Button(
+                        onClick = { scope.launch { listState.animateScrollToItem(0) } }
+                    ) {
+                        Text("Наверх")
                     }
                 }
             }
