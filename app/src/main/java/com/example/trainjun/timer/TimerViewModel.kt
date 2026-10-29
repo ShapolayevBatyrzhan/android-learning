@@ -7,16 +7,19 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Timer
 import kotlin.time.Duration.Companion.milliseconds
 
 class TimerViewModel : ViewModel() {
     private var timerJob: Job? = null
-    var uiState by mutableStateOf(
-        TimerUiState()
-    )
-        private set
+
+    private val _uiState = MutableStateFlow(TimerUiState())
+    val uiState: StateFlow<TimerUiState> = _uiState.asStateFlow()
 
     fun onEvent(event: TimerEvent) {
         when (event) {
@@ -27,40 +30,42 @@ class TimerViewModel : ViewModel() {
     }
 
     private fun onStartClick() {
-        if (uiState.isRunning) {
+        if (uiState.value.isRunning) {
             return
         }
 
-        if (uiState.seconds == 0) {
-            uiState = uiState.copy(
-                seconds = TIMER_START_SECONDS
-            )
+        if (uiState.value.seconds == 0) {
+            _uiState.update {
+                it.copy(
+                    seconds = TIMER_START_SECONDS
+                )
+            }
         }
 
         timerJob = viewModelScope.launch {
-            uiState = uiState.copy(isRunning = true)
+            _uiState.update { it.copy(isRunning = true) }
 
-            while (uiState.seconds > 0) {
+            while (uiState.value.seconds > 0) {
                 delay(1000.milliseconds)
-                uiState = uiState.copy(seconds = uiState.seconds - 1)
+                _uiState.update { it.copy(seconds = uiState.value.seconds - 1) }
             }
 
-            uiState = uiState.copy(isRunning = false)
+            _uiState.update { it.copy(isRunning = false) }
         }
     }
 
     private fun onPauseClick() {
         stopTimer()
-        uiState = uiState.copy(isPaused = true)
+        _uiState.update { it.copy(isPaused = true) }
     }
 
     private fun onResetClick() {
         stopTimer()
-        uiState = TimerUiState()
+        _uiState.value = TimerUiState()
     }
 
     private fun stopTimer() {
         timerJob?.cancel()
-        uiState = uiState.copy(isRunning = false)
+        _uiState.update { it.copy(isRunning = false) }
     }
 }

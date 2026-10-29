@@ -93,8 +93,10 @@ class MainActivity : ComponentActivity() {
 fun TimerScreen(
     viewModel: TimerViewModel = viewModel(),
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+
     TimerContent(
-        uiState = viewModel.uiState,
+        uiState = uiState,
         onEvent = viewModel::onEvent
     )
 }

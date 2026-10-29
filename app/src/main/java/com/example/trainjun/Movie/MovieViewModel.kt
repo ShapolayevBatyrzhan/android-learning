@@ -33,10 +33,12 @@ class MovieViewModel : ViewModel() {
     }
 
     fun onSearchChange(text: String) {
-        _uiState.update {it.copy(
-            searchText = text,
-            movies = filterMovies(text)
-        ) }
+        _uiState.update {
+            it.copy(
+                searchText = text,
+                movies = filterMovies(text)
+            )
+        }
     }
 
     fun onRefreshClick() {
@@ -55,13 +57,20 @@ class MovieViewModel : ViewModel() {
         loadJob?.cancel()
 
         loadJob = viewModelScope.launch {
-            _uiState.update { it.copy(
-                isLoading = true
-            ) }
+            _uiState.update {
+                it.copy(
+                    isLoading = true
+                )
+            }
 
             val movies = fetchMovies()
             allMovies = movies
-            _uiState.update{ it.copy(isLoading = false, movies = filterMovies(uiState.value.searchText)) }
+            _uiState.update {
+                it.copy(
+                    isLoading = false,
+                    movies = filterMovies(uiState.value.searchText)
+                )
+            }
         }
     }
 
