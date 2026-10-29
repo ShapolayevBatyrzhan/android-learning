@@ -53,6 +53,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -442,8 +443,10 @@ fun FavoritesScreen() {
 fun TaskScreen(
     viewmodel: TaskViewModel = viewModel()
 ) {
+    val uiState by viewmodel.uiState.collectAsStateWithLifecycle()
+
     TaskMain(
-        uiState = viewmodel.uiState,
+        uiState = uiState,
         onEvent = viewmodel::onEvent
     )
 }
