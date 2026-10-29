@@ -80,8 +80,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            AppNavigation()
-            //TimerScreen()
+            //AppNavigation()
+            TimerScreen()
             //TaskScreen()
             //LoveScreen()
         }
@@ -446,13 +446,13 @@ fun FavoritesScreen() {
 
 @Composable
 fun TaskScreen(
-    viewmodel: TaskViewModel = viewModel()
+    viewModel: TaskViewModel = viewModel()
 ) {
-    val uiState by viewmodel.uiState.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     TaskMain(
         uiState = uiState,
-        onEvent = viewmodel::onEvent
+        onEvent = viewModel::onEvent
     )
 }
 

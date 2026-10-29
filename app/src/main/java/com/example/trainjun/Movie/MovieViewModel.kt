@@ -1,19 +1,16 @@
 package com.example.trainjun.Movie
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
-import kotlin.time.Duration.Companion.milliseconds
-import android.util.Log
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.launch
+import kotlin.time.Duration.Companion.milliseconds
 
 
 class MovieViewModel : ViewModel() {
@@ -33,8 +30,8 @@ class MovieViewModel : ViewModel() {
     }
 
     fun onSearchChange(text: String) {
-        _uiState.update {
-            it.copy(
+        _uiState.update {state ->
+            state.copy(
                 searchText = text,
                 movies = filterMovies(text)
             )
@@ -57,18 +54,18 @@ class MovieViewModel : ViewModel() {
         loadJob?.cancel()
 
         loadJob = viewModelScope.launch {
-            _uiState.update {
-                it.copy(
+            _uiState.update {state ->
+                state.copy(
                     isLoading = true
                 )
             }
 
             val movies = fetchMovies()
             allMovies = movies
-            _uiState.update {
-                it.copy(
+            _uiState.update {state ->
+                state.copy(
                     isLoading = false,
-                    movies = filterMovies(uiState.value.searchText)
+                    movies = filterMovies(state.searchText)
                 )
             }
         }

@@ -1,8 +1,5 @@
 package com.example.trainjun.timer
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.Job
@@ -12,12 +9,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import java.util.Timer
 import kotlin.time.Duration.Companion.milliseconds
 
 class TimerViewModel : ViewModel() {
     private var timerJob: Job? = null
-
     private val _uiState = MutableStateFlow(TimerUiState())
     val uiState: StateFlow<TimerUiState> = _uiState.asStateFlow()
 
@@ -35,28 +30,27 @@ class TimerViewModel : ViewModel() {
         }
 
         if (uiState.value.seconds == 0) {
-            _uiState.update {
-                it.copy(
+            _uiState.update { state ->
+                state.copy(
                     seconds = TIMER_START_SECONDS
                 )
             }
         }
 
         timerJob = viewModelScope.launch {
-            _uiState.update { it.copy(isRunning = true) }
+            _uiState.update {state -> state.copy(isRunning = true) }
 
             while (uiState.value.seconds > 0) {
                 delay(1000.milliseconds)
-                _uiState.update { it.copy(seconds = uiState.value.seconds - 1) }
+                _uiState.update {state -> state.copy(seconds = state.seconds - 1) }
             }
 
-            _uiState.update { it.copy(isRunning = false) }
+            _uiState.update { state -> state.copy(isRunning = false) }
         }
     }
 
     private fun onPauseClick() {
         stopTimer()
-        _uiState.update { it.copy(isPaused = true) }
     }
 
     private fun onResetClick() {
@@ -66,6 +60,6 @@ class TimerViewModel : ViewModel() {
 
     private fun stopTimer() {
         timerJob?.cancel()
-        _uiState.update { it.copy(isRunning = false) }
+        _uiState.update {state -> state.copy(isRunning = false) }
     }
 }

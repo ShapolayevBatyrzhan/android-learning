@@ -1,8 +1,5 @@
 package com.example.trainjun.Task
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.delay
@@ -10,7 +7,6 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
-import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
 
@@ -21,7 +17,7 @@ class TaskViewModel : ViewModel() {
     fun onEvent(event: TaskEvent) {
         when (event) {
             is TaskEvent.TextChanged -> {
-                _uiState.update { it.copy(inputText = event.text) }
+                _uiState.update {state -> state.copy(inputText = event.text) }
             }
 
             is TaskEvent.AddTask -> addTask()
@@ -53,14 +49,14 @@ class TaskViewModel : ViewModel() {
                     isDone = false
                 )
 
-                _uiState.update {
-                    it.copy(
-                        tasks = _uiState.value.tasks + newTask,
+                _uiState.update {state ->
+                    state.copy(
+                        tasks = state.tasks + newTask,
                         inputText = ""
                     )
                 }
             } finally {
-                _uiState.update { it.copy(isAdding = false) }
+                _uiState.update {state -> state.copy(isAdding = false) }
             }
         }
     }
@@ -70,9 +66,9 @@ class TaskViewModel : ViewModel() {
     }
 
     private fun toggleTask(id: Int) {
-        _uiState.update {
-            it.copy(
-                tasks = _uiState.value.tasks.map { task ->
+        _uiState.update {state ->
+            state.copy(
+                tasks = state.tasks.map { task ->
                     if (task.id == id) {
                         task.copy(isDone = !task.isDone)
                     } else {
@@ -84,9 +80,9 @@ class TaskViewModel : ViewModel() {
     }
 
     private fun deleteTask(id: Int) {
-        _uiState.update {
-            it.copy(
-                tasks = _uiState.value.tasks.filter { it.id != id }
+        _uiState.update { state ->
+            state.copy(
+                tasks = state.tasks.filter { it.id != id }
             )
         }
     }
