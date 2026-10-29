@@ -10,6 +10,10 @@ import kotlinx.coroutines.launch
 import kotlin.time.Duration.Companion.milliseconds
 import android.util.Log
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 
 
 class MovieViewModel : ViewModel() {
@@ -17,22 +21,22 @@ class MovieViewModel : ViewModel() {
     private var allMovies = emptyList<Movie>()
     private var loadJob: Job? = null
 
-    var uiState by mutableStateOf(
+    private val _uiState = MutableStateFlow(
         MovieListUiState(
-            isLoading = true,
+            isLoading = true
         )
     )
-        private set
+    val uiState: StateFlow<MovieListUiState> = _uiState.asStateFlow()
 
     init {
         loadMovies()
     }
 
     fun onSearchChange(text: String) {
-        uiState = uiState.copy(
+        _uiState.update {it.copy(
             searchText = text,
             movies = filterMovies(text)
-        )
+        ) }
     }
 
     fun onRefreshClick() {
@@ -51,13 +55,13 @@ class MovieViewModel : ViewModel() {
         loadJob?.cancel()
 
         loadJob = viewModelScope.launch {
-            uiState = uiState.copy(
+            _uiState.update { it.copy(
                 isLoading = true
-            )
+            ) }
 
             val movies = fetchMovies()
             allMovies = movies
-            uiState = uiState.copy(isLoading = false, movies = filterMovies(uiState.searchText))
+            _uiState.update{ it.copy(isLoading = false, movies = filterMovies(uiState.value.searchText)) }
         }
     }
 
@@ -67,7 +71,12 @@ class MovieViewModel : ViewModel() {
         delay(2000.milliseconds)
         Log.d("MovieVM", "ended")
         return (1..20).map { number ->
-            Movie(id = number, title = "Фильм $number", description = "Описание $number", year = 2000 + number)
+            Movie(
+                id = number,
+                title = "Фильм $number",
+                description = "Описание $number",
+                year = 2000 + number
+            )
         }.shuffled()
     }
 }

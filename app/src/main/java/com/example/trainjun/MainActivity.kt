@@ -73,6 +73,7 @@ import com.example.trainjun.timer.TimerEvent
 import com.example.trainjun.timer.TimerUiState
 import com.example.trainjun.timer.TimerViewModel
 import kotlinx.coroutines.launch
+import androidx.compose.runtime.collectAsState
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -151,8 +152,9 @@ fun MovieListScreen(
     onMovieClick: (Int) -> Unit,
     viewModel: MovieViewModel = viewModel()
 ) {
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     MovieListContent(
-        uiState = viewModel.uiState,
+        uiState = uiState,
         onSearchChange = viewModel::onSearchChange,
         onMovieClick = onMovieClick,
         onRefreshClick = viewModel::onRefreshClick
@@ -325,8 +327,9 @@ fun DetailScreen(
     viewModel: MovieViewModel = viewModel()
 ) {
     val movie = viewModel.getMovieById(movieId)
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
-    if (viewModel.uiState.isLoading) {
+    if (uiState.isLoading) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             CircularProgressIndicator()
         }
