@@ -63,20 +63,20 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import androidx.room.util.TableInfo
-import com.example.trainjun.Movie.Movie
-import com.example.trainjun.Movie.MovieListUiState
-import com.example.trainjun.Movie.MovieViewModel
-import com.example.trainjun.Task.Task
-import com.example.trainjun.Task.TaskEvent
-import com.example.trainjun.Task.TaskUiState
-import com.example.trainjun.Task.TaskViewModel
+import com.example.trainjun.movie.Movie
+import com.example.trainjun.movie.MovieListUiState
+import com.example.trainjun.movie.MovieViewModel
+import com.example.trainjun.task.Task
+import com.example.trainjun.task.TaskEvent
+import com.example.trainjun.task.TaskUiState
+import com.example.trainjun.task.TaskViewModel
 import com.example.trainjun.timer.TimerEvent
 import com.example.trainjun.timer.TimerUiState
 import com.example.trainjun.timer.TimerViewModel
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.draw.clip
-import com.example.trainjun.Movie.MoviesContent
+import com.example.trainjun.movie.MoviesContent
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {

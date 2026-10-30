@@ -1,4 +1,4 @@
-package com.example.trainjun.Movie
+package com.example.trainjun.movie
 
 data class MovieListUiState(
     val searchText: String = "",

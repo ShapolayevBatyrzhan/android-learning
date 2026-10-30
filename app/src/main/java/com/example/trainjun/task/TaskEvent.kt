@@ -1,4 +1,4 @@
-package com.example.trainjun.Task
+package com.example.trainjun.task
 
 sealed interface TaskEvent {
     data class TextChanged(val text: String) : TaskEvent

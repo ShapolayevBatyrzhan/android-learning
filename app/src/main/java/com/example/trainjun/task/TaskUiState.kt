@@ -1,4 +1,4 @@
-package com.example.trainjun.Task
+package com.example.trainjun.task
 
 data class TaskUiState(
     val tasks: List<Task> = emptyList(),

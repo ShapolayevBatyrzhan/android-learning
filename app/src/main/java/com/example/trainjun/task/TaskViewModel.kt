@@ -1,4 +1,4 @@
-package com.example.trainjun.Task
+package com.example.trainjun.task
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

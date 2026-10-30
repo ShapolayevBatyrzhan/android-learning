@@ -1,4 +1,4 @@
-package com.example.trainjun.Movie
+package com.example.trainjun.movie
 
 import android.util.Log
 import androidx.lifecycle.ViewModel
