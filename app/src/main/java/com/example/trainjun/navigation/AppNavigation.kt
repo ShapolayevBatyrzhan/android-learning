@@ -21,6 +21,7 @@ import androidx.navigation.navArgument
 import com.example.trainjun.movie.DetailScreen
 import com.example.trainjun.movie.FavoritesScreen
 import com.example.trainjun.movie.MovieListScreen
+import com.example.trainjun.navigation.Routes.ARG_MOVIE_ID
 
 @Composable
 fun AppNavigation() {
@@ -69,14 +70,14 @@ fun AppNavigation() {
         ) {
             composable(Routes.MOVIE_LIST) {
                 MovieListScreen(onMovieClick = { id ->
-                    navController.navigate("${Routes.MOVIE_DETAIL}/$id")
+                    navController.navigate(Routes.movieDetail(id))
                 })
             }
             composable(
-                route = "${Routes.MOVIE_DETAIL}/{movieId}",
-                arguments = listOf(navArgument("movieId") { type = NavType.IntType })
+                route = Routes.MOVIE_DETAIL_PATTERN,
+                arguments = listOf(navArgument(ARG_MOVIE_ID) { type = NavType.IntType })
             ) { backStackEntry ->
-                val movieId = backStackEntry.arguments?.getInt("movieId") ?: 0
+                val movieId = backStackEntry.arguments?.getInt(ARG_MOVIE_ID) ?: 0
                 DetailScreen(
                     movieId = movieId,
                     onBack = { navController.popBackStack() })

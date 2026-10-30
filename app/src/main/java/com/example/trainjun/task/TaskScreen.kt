@@ -22,11 +22,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.trainjun.TaskItem
-import com.example.trainjun.TaskMain
 
 @Composable
 fun TaskScreen(
@@ -95,7 +94,7 @@ fun TaskMain(
 }
 
 @Composable
-fun TaskItem(
+private fun TaskItem(
     task: Task,
     onToggle: (Int) -> Unit,
     onDelete: (Int) -> Unit
@@ -134,4 +133,15 @@ fun TaskItem(
             }
         }
     }
+}
+
+@Preview(showBackground = true, name = "Задачи")
+@Composable
+fun TaskMainPreview() {
+    TaskMain(
+        uiState = TaskUiState(
+            tasks = listOf(Task(1, "task1", false)),
+        ),
+        onEvent = {}
+    )
 }

@@ -33,6 +33,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -213,4 +214,63 @@ fun MovieListContent(
             }
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun MovieListContentPreview() {
+    MovieListContent(
+        uiState = MovieListUiState(
+            content = MoviesContent.Success(
+                listOf(
+                    Movie(1, "Movie1", "Description1", 2000),
+                    Movie(2, "Movie2", "Description1", 2000),
+                    Movie(3, "Movie3", "Description1", 2000),
+                )
+            )
+        ),
+        onSearchChange = {},
+        onMovieClick = {},
+        onRefreshClick = {}
+    )
+}
+
+@Preview(showBackground = true, name = "Пустой лист")
+@Composable
+fun MovieListEmptyListPreview() {
+    MovieListContent(
+        uiState = MovieListUiState(
+            content = MoviesContent.Empty,
+        ),
+        onSearchChange = {},
+        onMovieClick = {},
+        onRefreshClick = {}
+    )
+}
+
+@Preview(showBackground = true, name = "Ошибка")
+@Composable
+fun MovieListErrorListPreview() {
+    MovieListContent(
+        uiState = MovieListUiState(
+            content = MoviesContent.Error("Ошибка загрузки"),
+        ),
+        onSearchChange = {},
+        onMovieClick = {},
+        onRefreshClick = {}
+    )
+}
+
+@Preview(showBackground = true, name = "Пустой поиск")
+@Composable
+fun MovieListEmptyPreview() {
+    MovieListContent(
+        uiState = MovieListUiState(
+            content = MoviesContent.Success(emptyList()),
+            searchText = "www"
+        ),
+        onSearchChange = {},
+        onMovieClick = {},
+        onRefreshClick = {}
+    )
 }
