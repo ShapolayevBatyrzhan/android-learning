@@ -6,8 +6,10 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import com.example.trainjun.movie.Movie
 import com.example.trainjun.movie.MovieListContent
 import com.example.trainjun.movie.MovieListUiState
+import com.example.trainjun.movie.MoviesContent
 import com.example.trainjun.task.Task
 import com.example.trainjun.task.TaskMain
 import com.example.trainjun.task.TaskUiState
@@ -30,11 +32,39 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun MovieListContentPreview() {
     MovieListContent(
+         uiState = MovieListUiState(
+             content = MoviesContent.Success(listOf(
+                 Movie(1, "Movie1", "Description1", 2000),
+                 Movie(2, "Movie2", "Description1", 2000),
+                 Movie(3, "Movie3", "Description1", 2000),
+             )
+         )
+        ),
+        onSearchChange = {},
+        onMovieClick = {},
+        onRefreshClick = {}
+    )
+}
+
+@Preview(showBackground = true, name = "Пустой лист")
+@Composable
+fun MovieListEmptyListPreview() {
+    MovieListContent(
         uiState = MovieListUiState(
-//            //movies = listOf(
-//                Movie(id = 1, title = "Начало", description = "Сны", year = 2010),
-//                Movie(id = 2, title = "Матрица", description = "Симуляция", year = 1999)
-//            )
+            content = MoviesContent.Empty,
+        ),
+        onSearchChange = {},
+        onMovieClick = {},
+        onRefreshClick = {}
+    )
+}
+
+@Preview(showBackground = true, name = "Ошибка")
+@Composable
+fun MovieListErrorListPreview() {
+    MovieListContent(
+        uiState = MovieListUiState(
+            content = MoviesContent.Error("Ошибка загрузки"),
         ),
         onSearchChange = {},
         onMovieClick = {},
@@ -47,7 +77,8 @@ fun MovieListContentPreview() {
 fun MovieListEmptyPreview() {
     MovieListContent(
         uiState = MovieListUiState(
-            //movies = emptyList(), searchText = "www"
+            content = MoviesContent.Success(emptyList()),
+            searchText = "www"
         ),
         onSearchChange = {},
         onMovieClick = {},
