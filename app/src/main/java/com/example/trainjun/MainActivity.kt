@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.windowInsetsEndWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
@@ -74,14 +75,16 @@ import com.example.trainjun.timer.TimerUiState
 import com.example.trainjun.timer.TimerViewModel
 import kotlinx.coroutines.launch
 import androidx.compose.runtime.collectAsState
+import androidx.compose.ui.draw.clip
+import com.example.trainjun.Movie.MoviesContent
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            //AppNavigation()
-            TimerScreen()
+            AppNavigation()
+            //TimerScreen()
             //TaskScreen()
             //LoveScreen()
         }
@@ -201,106 +204,141 @@ fun MovieListContent(
             modifier = Modifier.fillMaxWidth()
         )
 
-        if (uiState.isLoading) {
-            Box(
-                modifier = Modifier
-                    .weight(1f)
-                    .fillMaxWidth(),
-                contentAlignment = Alignment.Center
-            ) {
-                CircularProgressIndicator()
-            }
-        } else {
-            LazyColumn(
-                modifier = Modifier
-                    .weight(1f),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                state = listState
-            ) {
-
-                if (uiState.movies.isEmpty()) {
-                    item {
-                        Text("Такого фильма нет")
-                    }
+        when (val content = uiState.content) {
+            MoviesContent.Loading -> {
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
                 }
+            }
 
-                if (uiState.searchText.isBlank()) {
-                    item {
-                        Text("Movies")
+            is MoviesContent.Success -> {
+                LazyColumn(
+                    modifier = Modifier
+                        .weight(1f),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    state = listState
+                ) {
+                    if (content.movies.isEmpty()) {
+                        item { Text("Такого фильма нет") }
                     }
 
-                    item {
-                        LazyRow(
-                            modifier = Modifier.height(100.dp),
-                            horizontalArrangement = Arrangement.spacedBy(8.dp)
-                        ) {
-                            items(uiState.movies, key = { it.id }) { movie ->
-                                Card(
-                                    modifier = Modifier.width(140.dp),
-                                    onClick = { onMovieClick(movie.id) }
-                                ) {
-                                    Text(
-                                        text = movie.title,
-                                        style = MaterialTheme.typography.titleSmall,
-                                        maxLines = 2,
-                                        overflow = TextOverflow.Ellipsis,
-                                        modifier = Modifier.padding(12.dp)
-                                    )
+                    if (uiState.searchText.isBlank()) {
+                        item {
+                            Text("Movies")
+                        }
+
+                        item {
+                            LazyRow(
+                                modifier = Modifier.height(100.dp),
+                                horizontalArrangement = Arrangement.spacedBy(8.dp)
+                            ) {
+                                items(content.movies, key = { it.id }) { movie ->
+                                    Card(
+                                        modifier = Modifier.width(140.dp),
+                                        onClick = { onMovieClick(movie.id) }
+                                    ) {
+                                        Text(
+                                            text = movie.title,
+                                            style = MaterialTheme.typography.titleSmall,
+                                            maxLines = 2,
+                                            overflow = TextOverflow.Ellipsis,
+                                            modifier = Modifier.padding(12.dp)
+                                        )
+                                    }
                                 }
+                            }
+                        }
+
+                        item {
+                            Text(
+                                text = "Все фильмы",
+                                style = MaterialTheme.typography.titleLarge
+                            )
+                        }
+                    }
+
+                    items(content.movies, key = { it.id }) { movie ->
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(8.dp),
+                            onClick = { onMovieClick(movie.id) }
+                        ) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Text(
+                                    text = movie.title,
+                                    style = MaterialTheme.typography.titleMedium
+                                )
+
+                                Text(
+                                    text = movie.year.toString(),
+                                    style = MaterialTheme.typography.bodyMedium
+                                )
                             }
                         }
                     }
 
-                    item {
-                        Text(
-                            text = "Все фильмы",
-                            style = MaterialTheme.typography.titleLarge
-                        )
-                    }
-                }
-
-                items(uiState.movies, key = { it.id }) { movie ->
-                    Card(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(8.dp),
-                        onClick = { onMovieClick(movie.id) }
-                    ) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Text(
-                                text = movie.title,
-                                style = MaterialTheme.typography.titleMedium
-                            )
-
-                            Text(
-                                text = movie.year.toString(),
-                                style = MaterialTheme.typography.bodyMedium
-                            )
+                    if (content.movies.isNotEmpty()) {
+                        item {
+                            Button(
+                                onClick = { scope.launch { listState.animateScrollToItem(0) } }
+                            ) {
+                                Text("Наверх")
+                            }
                         }
                     }
                 }
+            }
 
-                item {
-                    Button(
-                        onClick = { scope.launch { listState.animateScrollToItem(0) } }
+            is MoviesContent.Error -> {
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
-                        Text("Наверх")
+                        Text(content.message)
+                        Button(onClick = onRefreshClick) {
+                            Text("Повторить")
+                        }
                     }
+                }
+            }
+
+            MoviesContent.Empty -> {
+                Box(
+                    modifier = Modifier
+                        .weight(1f)
+                        .fillMaxWidth(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("Фильмов пока нет")
                 }
             }
         }
     }
 }
 
+
 @Preview(showBackground = true)
 @Composable
 fun MovieListContentPreview() {
     MovieListContent(
         uiState = MovieListUiState(
-            movies = listOf(
-                Movie(id = 1, title = "Начало", description = "Сны", year = 2010),
-                Movie(id = 2, title = "Матрица", description = "Симуляция", year = 1999)
-            )
+//            //movies = listOf(
+//                Movie(id = 1, title = "Начало", description = "Сны", year = 2010),
+//                Movie(id = 2, title = "Матрица", description = "Симуляция", year = 1999)
+//            )
         ),
         onSearchChange = {},
         onMovieClick = {},
@@ -313,7 +351,7 @@ fun MovieListContentPreview() {
 fun MovieListEmptyPreview() {
     MovieListContent(
         uiState = MovieListUiState(
-            movies = emptyList(), searchText = "www"
+            //movies = emptyList(), searchText = "www"
         ),
         onSearchChange = {},
         onMovieClick = {},
@@ -328,12 +366,36 @@ fun DetailScreen(
     onBack: () -> Unit,
     viewModel: MovieViewModel = viewModel()
 ) {
-    val movie = viewModel.getMovieById(movieId)
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    val movie = viewModel.getMovieById(movieId)
+    val content = uiState.content
 
-    if (uiState.isLoading) {
+    if (content is MoviesContent.Loading) {
         Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
             CircularProgressIndicator()
+        }
+        return
+    }
+
+    if (content is MoviesContent.Error) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth(),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                Text(content.message)
+                Button(
+                    onClick = viewModel::onRefreshClick
+                ) {
+                    Text("Повторить")
+                }
+            }
         }
         return
     }

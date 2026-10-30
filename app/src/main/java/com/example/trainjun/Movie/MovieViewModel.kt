@@ -10,6 +10,8 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.io.IOException
+import kotlin.random.Random
 import kotlin.time.Duration.Companion.milliseconds
 
 
@@ -19,9 +21,7 @@ class MovieViewModel : ViewModel() {
     private var loadJob: Job? = null
 
     private val _uiState = MutableStateFlow(
-        MovieListUiState(
-            isLoading = true
-        )
+        MovieListUiState()
     )
     val uiState: StateFlow<MovieListUiState> = _uiState.asStateFlow()
 
@@ -30,10 +30,12 @@ class MovieViewModel : ViewModel() {
     }
 
     fun onSearchChange(text: String) {
-        _uiState.update {state ->
+        _uiState.update { state ->
             state.copy(
                 searchText = text,
-                movies = filterMovies(text)
+                content = if (state.content is MoviesContent.Success) MoviesContent.Success(
+                    filterMovies(text)
+                ) else state.content
             )
         }
     }
@@ -54,19 +56,24 @@ class MovieViewModel : ViewModel() {
         loadJob?.cancel()
 
         loadJob = viewModelScope.launch {
-            _uiState.update {state ->
-                state.copy(
-                    isLoading = true
-                )
-            }
+            _uiState.update { state -> state.copy(content = MoviesContent.Loading) }
 
-            val movies = fetchMovies()
-            allMovies = movies
-            _uiState.update {state ->
-                state.copy(
-                    isLoading = false,
-                    movies = filterMovies(state.searchText)
-                )
+            try {
+                val movies = fetchMovies()
+                allMovies = movies
+
+                _uiState.update { state ->
+                    state.copy(
+                        content = if (movies.isEmpty()) MoviesContent.Empty
+                        else MoviesContent.Success(filterMovies(state.searchText))
+                    )
+                }
+            } catch (e: IOException) {
+                _uiState.update { state ->
+                    state.copy(
+                        content = MoviesContent.Error("Нет подключения к интернету. Проверьте сеть и попробуйте снова")
+                    )
+                }
             }
         }
     }
@@ -75,6 +82,9 @@ class MovieViewModel : ViewModel() {
     private suspend fun fetchMovies(): List<Movie> {
         Log.d("MovieVM", "Loading started")
         delay(2000.milliseconds)
+
+        if (Random.nextInt(3) == 0) throw IOException("Нет сети")
+
         Log.d("MovieVM", "ended")
         return (1..20).map { number ->
             Movie(
