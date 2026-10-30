@@ -4,6 +4,7 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import com.example.trainjun.navigation.AppNavigation
 import com.example.trainjun.timer.TimerScreen
 
 class MainActivity : ComponentActivity() {
@@ -11,8 +12,8 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            //AppNavigation()
-            TimerScreen()
+            AppNavigation()
+            //TimerScreen()
             //TaskScreen()
             //LoveScreen()
         }
