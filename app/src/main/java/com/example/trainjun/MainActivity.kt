@@ -15,7 +15,6 @@ class MainActivity : ComponentActivity() {
             AppNavigation()
             //TimerScreen()
             //TaskScreen()
-            //LoveScreen()
         }
     }
 }
