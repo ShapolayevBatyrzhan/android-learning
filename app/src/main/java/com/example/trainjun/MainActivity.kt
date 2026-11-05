@@ -7,8 +7,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.trainjun.navigation.AppNavigation
-import com.example.trainjun.timer.TimerScreen
+import com.example.trainjun.notes.NotesScreen
+import com.example.trainjun.notes.NotesViewModel
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -19,11 +19,12 @@ class MainActivity : ComponentActivity() {
             //TimerScreen()
             //TaskScreen()
             NotesScreen()
+
         }
     }
 }
 
-@Composable
-fun NotesScreen(viewModel: NotesViewModel = viewModel(factory = NotesViewModel.Factory)) {
-    Text("Заметки")
-}
+//@Composable
+//fun NotesScreen(viewModel: NotesViewModel = viewModel(factory = NotesViewModel.Factory)) {
+//    Text("Заметки")
+//}

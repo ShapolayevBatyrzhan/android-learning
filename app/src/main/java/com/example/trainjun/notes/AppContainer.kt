@@ -1,8 +1,7 @@
-package com.example.trainjun
+package com.example.trainjun.notes
 
 import android.content.Context
 import androidx.room.Room
-import com.example.trainjun.notes.AppDatabase
 import kotlin.jvm.java
 
 class AppContainer(context: Context) {

@@ -1,7 +1,5 @@
-package com.example.trainjun
+package com.example.trainjun.notes
 
-import com.example.trainjun.notes.NoteDao
-import com.example.trainjun.notes.NoteEntity
 import kotlinx.coroutines.flow.Flow
 
 class NoteRepository(private val noteDao: NoteDao) {
