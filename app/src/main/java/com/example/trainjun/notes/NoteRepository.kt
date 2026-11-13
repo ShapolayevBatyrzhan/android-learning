@@ -18,4 +18,12 @@ class NoteRepository(private val noteDao: NoteDao) {
     suspend fun deleteNote(note: NoteEntity) {
         noteDao.delete(note)
     }
+
+    suspend fun updateNote(id: Int, title: String, content: String) {
+        val note = noteDao.getById(id) ?: return
+
+        noteDao.update(
+            note.copy(title = title, content = content)
+        )
+    }
 }

@@ -1,5 +1,6 @@
 package com.example.trainjun.notes
 
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -16,6 +17,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -25,7 +27,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
-import kotlin.concurrent.timerTask
 
 @Composable
 fun NotesScreen(
@@ -65,11 +66,22 @@ fun NotesListContent(
             label = { Text("Введите описание заметки") },
             modifier = Modifier.fillMaxWidth()
         )
-        Button(
-            onClick = { onEvent(NotesEvent.AddNote) }
-        ) {
-            Text("Добавить")
+
+        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+            Button(
+                onClick = { onEvent(NotesEvent.SaveNote) }
+            ) {
+                Text(if (input.editingId != null) "Сохранить" else "Добавить")
+            }
+            if(input.editingId != null) {
+                OutlinedButton(
+                    onClick = { onEvent(NotesEvent.CancelEdit) }
+                ) {
+                    Text("Отменить")
+                }
+            }
         }
+
         when (val content = uiState.content) {
             NotesContent.Loading -> {
                 Box(
@@ -90,10 +102,12 @@ fun NotesListContent(
                         Card(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(8.dp)
+                                .padding(8.dp),
+                            onClick = { onEvent(NotesEvent.EditNote(note)) }
                         ) {
                             Row(
-                                modifier = Modifier.padding(16.dp)
+                                modifier = Modifier
+                                    .padding(16.dp)
                                     .padding(8.dp),
                                 verticalAlignment = Alignment.CenterVertically
                             ) {

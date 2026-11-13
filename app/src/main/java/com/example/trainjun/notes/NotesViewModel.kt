@@ -43,27 +43,46 @@ class NotesViewModel(
                 _input.update { state -> state.copy(content = event.content) }
             }
 
-            NotesEvent.AddNote -> {
-                addNote()
+            NotesEvent.SaveNote -> {
+                saveNote()
             }
 
             is NotesEvent.DeleteNote -> {
                 deleteNote(event.note)
             }
+
+            is NotesEvent.EditNote -> _input.value = NoteInput(
+                title = event.note.title,
+                content = event.note.content,
+                editingId = event.note.id
+            )
+
+            NotesEvent.CancelEdit -> _input.value = NoteInput()
         }
     }
 
-    private fun addNote() {
+    private fun saveNote() {
         val current = _input.value
         if (current.title.isBlank()) return
 
         viewModelScope.launch {
-            repository.addNote(current.title, current.content)
+            val id = current.editingId
+
+            if (id == null) {
+                repository.addNote(current.title, current.content)
+            } else {
+                repository.updateNote(id, current.title, current.content)
+            }
             _input.update { NoteInput() }
         }
     }
 
     private fun deleteNote(note: NoteEntity) {
+
+        if (note.id == _input.value.editingId) {
+            _input.value = NoteInput()
+        }
+
         viewModelScope.launch {
             repository.deleteNote(note)
         }
