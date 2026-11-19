@@ -7,6 +7,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.trainjun.navigation.AppNavigation
 import com.example.trainjun.notes.NotesScreen
 import com.example.trainjun.notes.NotesViewModel
 
@@ -15,10 +16,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            //AppNavigation()
+            AppNavigation()
             //TimerScreen()
             //TaskScreen()
-            NotesScreen()
+            //NotesScreen()
 
         }
     }

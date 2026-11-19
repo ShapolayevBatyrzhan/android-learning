@@ -1,101 +1,95 @@
 package com.example.trainjun.movie
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.ViewModelProvider.AndroidViewModelFactory.Companion.APPLICATION_KEY
 import androidx.lifecycle.viewModelScope
-import kotlinx.coroutines.Dispatchers
+import androidx.lifecycle.viewmodel.initializer
+import androidx.lifecycle.viewmodel.viewModelFactory
+import com.example.trainjun.TrainJunApp
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.io.IOException
-import kotlin.random.Random
-import kotlin.time.Duration.Companion.milliseconds
 
 
-class MovieViewModel : ViewModel() {
-
-    private var allMovies = emptyList<Movie>()
+class MovieViewModel(
+    private val movieRepository: MovieRepository
+) : ViewModel() {
     private var loadJob: Job? = null
 
-    private val _uiState = MutableStateFlow(
-        MovieListUiState()
-    )
-    val uiState: StateFlow<MovieListUiState> = _uiState.asStateFlow()
+    private val searchText = MutableStateFlow("")
+    private val errorMessage = MutableStateFlow<String?>(null)
+    private val openedMovieId = MutableStateFlow<Int?>(null)
+    val uiState: StateFlow<MovieListUiState> =
+        combine(movieRepository.movies, searchText, errorMessage) { movies, text, error ->
+            val content = when {
+                error != null -> MoviesContent.Error(error)
+                movies == null -> MoviesContent.Loading
+                movies.isEmpty() -> MoviesContent.Empty
+                else -> MoviesContent.Success(filterMovies(movies, text))
+            }
+            MovieListUiState(searchText = text, content = content)
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), MovieListUiState())
+
+    val detailState: StateFlow<DetailsContent> =
+        combine(movieRepository.movies, openedMovieId, errorMessage) { movies, id, error ->
+            when {
+                error != null -> DetailsContent.Error(error)
+                movies == null || id == null -> DetailsContent.Loading
+                else -> {
+                    val movie = movies.find { it.id == id }
+                    if (movie != null) DetailsContent.Success(movie) else DetailsContent.NotFound
+                }
+            }
+        }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), DetailsContent.Loading)
+
 
     init {
-        loadMovies()
+        requestMovies(force = false)
+    }
+
+    fun onMovieOpened(id: Int) {
+        openedMovieId.value = id
     }
 
     fun onSearchChange(text: String) {
-        _uiState.update { state ->
-            state.copy(
-                searchText = text,
-                content = if (state.content is MoviesContent.Success) MoviesContent.Success(
-                    filterMovies(text)
-                ) else state.content
-            )
-        }
+        searchText.value = text
     }
 
     fun onRefreshClick() {
-        loadMovies()
+        requestMovies(force = true)
     }
 
-    private fun filterMovies(text: String): List<Movie> {
-        return allMovies.filter { it.title.contains(text, ignoreCase = true) }
+    private fun filterMovies(movies: List<Movie>, text: String): List<Movie> {
+        return movies.filter { it.title.contains(text, ignoreCase = true) }
     }
 
-    fun getMovieById(id: Int): Movie? {
-        return allMovies.find { it.id == id }
-    }
-
-    private fun loadMovies() {
+    private fun requestMovies(force: Boolean) {
         loadJob?.cancel()
 
         loadJob = viewModelScope.launch {
-            _uiState.update { state -> state.copy(content = MoviesContent.Loading) }
-
+            errorMessage.value = null
             try {
-                val movies = fetchMovies()
-                allMovies = movies
-
-                _uiState.update { state ->
-                    state.copy(
-                        content = if (movies.isEmpty()) MoviesContent.Empty
-                        else MoviesContent.Success(filterMovies(state.searchText))
-                    )
-                }
+                if (force) movieRepository.refreshMovies() else movieRepository.loadMovies()
             } catch (e: IOException) {
-                _uiState.update { state ->
-                    state.copy(
-                        content = MoviesContent.Error("Нет подключения к интернету. Проверьте сеть и попробуйте снова")
-                    )
-                }
+                errorMessage.value =
+                    "Нет подключения к интернету. Проверьте сеть и попробуйте снова"
             }
         }
     }
 
-
-    private suspend fun fetchMovies(): List<Movie> {
-        Log.d("MovieVM", "Loading started")
-        delay(2000.milliseconds)
-
-        if (Random.nextInt(3) == 0) throw IOException("Нет сети")
-
-        Log.d("MovieVM", "ended")
-        return (1..20).map { number ->
-            Movie(
-                id = number,
-                title = "Фильм $number",
-                description = "Описание $number",
-                year = 2000 + number
-            )
-        }.shuffled()
+    companion object {
+        val Factory: ViewModelProvider.Factory = viewModelFactory {
+            initializer {
+                val app = this[APPLICATION_KEY] as TrainJunApp
+                MovieViewModel(app.container.movieRepository)
+            }
+        }
     }
 }
 

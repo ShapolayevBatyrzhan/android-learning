@@ -17,6 +17,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -29,66 +30,66 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 fun DetailScreen(
     movieId: Int,
     onBack: () -> Unit,
-    viewModel: MovieViewModel = viewModel()
+    viewModel: MovieViewModel = viewModel(factory = MovieViewModel.Factory)
 ) {
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
-    val movie = viewModel.getMovieById(movieId)
-    val content = uiState.content
+    LaunchedEffect(movieId) { viewModel.onMovieOpened(movieId) }
+    val state by viewModel.detailState.collectAsStateWithLifecycle()
 
-    if (content is MoviesContent.Loading) {
-        Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-            CircularProgressIndicator()
+    when (val content = state) {
+        DetailsContent.Loading -> {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
         }
-        return
-    }
 
-    if (content is MoviesContent.Error) {
-        Box(
-            modifier = Modifier
-                .fillMaxSize(),
-            contentAlignment = Alignment.Center
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Text(content.message)
-                Button(
-                    onClick = viewModel::onRefreshClick
+        is DetailsContent.Error -> {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
-                    Text("Повторить")
+                    Text(content.message)
+                    Button(
+                        onClick = viewModel::onRefreshClick
+                    ) {
+                        Text("Повторить")
+                    }
                 }
             }
         }
-        return
-    }
 
-    if (movie == null) {
-        Text("Такого фильма нет")
-        return
-    }
-
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text(movie.title) },
-                navigationIcon = {
-                    IconButton(onClick = onBack) {
-                        Icon(Icons.AutoMirrored.Filled.ArrowBack, contentDescription = "back")
-                    }
-                }
-            )
+        DetailsContent.NotFound -> {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text("Фильм не найден")
+            }
         }
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .padding(innerPadding)
-                .padding(16.dp)
-        ) {
-            Text(movie.year.toString())
-            Text(movie.description)
+
+        is DetailsContent.Success -> {
+            Scaffold(
+                topBar = {
+                    TopAppBar(
+                        title = { Text(content.movie.title) },
+                        navigationIcon = {
+                            IconButton(onClick = onBack) {
+                                Icon(
+                                    Icons.AutoMirrored.Filled.ArrowBack,
+                                    contentDescription = "back"
+                                )
+                            }
+                        }
+                    )
+                }
+            ) { innerPadding ->
+                Column(
+                    modifier = Modifier
+                        .padding(innerPadding)
+                        .padding(16.dp)
+                ) {
+                    Text(content.movie.year.toString())
+                    Text(content.movie.description)
+                }
+            }
         }
     }
 }

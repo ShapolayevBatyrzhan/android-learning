@@ -42,7 +42,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun MovieListScreen(
     onMovieClick: (Int) -> Unit,
-    viewModel: MovieViewModel = viewModel()
+    viewModel: MovieViewModel = viewModel(factory = MovieViewModel.Factory)
 ) {
     val uiState by viewModel.uiState.collectAsStateWithLifecycle()
     MovieListContent(

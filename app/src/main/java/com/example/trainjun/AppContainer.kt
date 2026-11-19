@@ -1,8 +1,10 @@
-package com.example.trainjun.notes
+package com.example.trainjun
 
 import android.content.Context
 import androidx.room.Room
-import kotlin.jvm.java
+import com.example.trainjun.movie.MovieRepository
+import com.example.trainjun.notes.AppDatabase
+import com.example.trainjun.notes.NoteRepository
 
 class AppContainer(context: Context) {
     private val database = Room.databaseBuilder(
@@ -12,4 +14,5 @@ class AppContainer(context: Context) {
     ).build()
 
     val noteRepository = NoteRepository(database.noteDao())
+    val movieRepository = MovieRepository()
 }

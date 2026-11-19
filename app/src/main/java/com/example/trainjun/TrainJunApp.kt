@@ -1,4 +1,4 @@
-package com.example.trainjun.notes
+package com.example.trainjun
 
 import android.app.Application
 import kotlin.getValue
